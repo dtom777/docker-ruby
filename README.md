@@ -1,67 +1,68 @@
-### docker image の作成
-
--t タグ付け
+### docker-compose イメージのビルド
 
 ```
-docker image build -t sample/webrick:latest .
+docker-compose build
 ```
 
-### docker image の確認
+### docker-compose コンテナの作成と起動
 
 ```
-docker image ls
+docker-compose up
 ```
 
-### docker container の起動
-
--p ポート指定
---name container の名前付け
+### docker-compose コンテナを停止・削除
 
 ```
-docker container run -p 8000:8000 --name webrick sample/webrick:latest
+docker-compose down
 ```
 
--it インタラクティブモード
--v ボリューム　ローカルの${PWD}/srcをdocker内/var/wwwに同期する
-${PWD}/src に変更を加えると/var/www にも変更が反映される
-Dockerfile は CMD ["/bin/bash"]にしておく
+### docker-compose コンテナの一覧を表示
 
 ```
-docker container run -it -p 4567:4567 --name sinatra -v ${PWD}/src:/var/www sample/sinatra:latest
+docker-compose ps
 ```
 
-### docker container の停止
+### docker-compose ログを表示
 
 ```
-docker container stop webrick
+docker-compose logs
 ```
 
-### docker container の削除
+### docker-compose コンテナを作成してコマンド実行
 
 ```
-docker container rm webrick
+docker-compose run <サービス> <コマンド>
 ```
 
-### docker container の状況確認
+### docker-compose 起動中のコンテナにコマンドを実行
 
 ```
-docker container ls -a
+docker-compose exec <サービス> <コマンド>
 ```
 
-### docker log を確認
+## 起動手順
+
+1. rails new
 
 ```
-docker container logs webrick
+docker-compose run web rails new . --force --database=mysql
 ```
 
-### docker コマンドを実行
+2. rails new により/src/Gemfile が書き換わるので再 build
 
 ```
-docker container exec webrick ruby -v
+docker-compose build
 ```
 
-### docker お掃除(使っていないイメージ、コンテナを削除)
+3. db の設定変更
+   /src/config/database.yml の
+   default の password(docker-compose.yml での設定 password) と host(docker-compose.yml での設定 services 名) を以下に変更
+
+   - password: password
+   - host: db
+
+4. db の作成
 
 ```
-docker system prune -a
+docker-compose run web rails db:create
 ```
